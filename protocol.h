@@ -68,10 +68,11 @@ struct Protocol_NavCommand_t {
     float rol; /* 翻滚角(Roll angle) */
   } gimbal;    /* 欧拉角 */
 
+  uint8_t mode; // 0-导航控制 1-路径规划 2-建图
   struct __attribute__((packed)) {
     float vx; /* x轴移动速度 */
-    float vy; /* y轴移动速度、哨兵沿轨道方向(正面面向战场，右为正方向) */
-    float wz; /* z轴转动速度、哨兵射界(弧度0～pi) */
+    float vy; /* y轴移动速度*/
+    float wz; /* z轴转动速度 */
   } chassis_move_vec; /* 底盘移动向量 */
   uint16_t checksum = 0;
 } __attribute__((packed));
