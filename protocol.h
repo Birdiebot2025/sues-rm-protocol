@@ -54,8 +54,9 @@ struct Protocol_UpDataReferee_t {
   uint8_t rfid;          /* 增益地点 */
   uint8_t base_hp;       /* 基地血量 */
   uint8_t sentry_hp;     /* 哨兵血量 */
-  uint8_t ballet_remain; /* 剩余弹量 */
+  uint8_t bullet_remain; /* 剩余弹量 */
   uint8_t arm;           /* 兵种信息 */
+  uint8_t mode;          /* 决策切换 */
   uint16_t checksum = 0;
 } __attribute__((packed));
 
@@ -63,12 +64,14 @@ struct Protocol_UpDataReferee_t {
 struct Protocol_NavCommand_t {
   uint8_t header = 0xA6;
   struct __attribute__((packed)) {
-    float yaw; /* 偏航角(Yaw angle) */
-    float pit; /* 俯仰角(Pitch angle) */
-    float rol; /* 翻滚角(Roll angle) */
-  } gimbal;    /* 欧拉角 */
+    float q1; /* 四元数q1 */
+    float q2; /* 四元数q2 */
+    float q3; /* 四元数q3 */
+    float q4; /* 四元数q4 */
+  } gimbal;    /* 四元数 */
 
   uint8_t mode; // 0-导航控制 1-路径规划 2-建图
+  
   struct __attribute__((packed)) {
     float vx; /* x轴移动速度 */
     float vy; /* y轴移动速度*/
