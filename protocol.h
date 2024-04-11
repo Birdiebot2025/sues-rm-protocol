@@ -15,7 +15,7 @@ extern "C" {
 struct Protocol_MCUPacket_t {
   uint8_t header = 0x5A;
   uint8_t detect_color : 1; // 0-red 1-blue
-  bool reset_tracker : 1;   // 0-不重置 1-重置
+  bool reset_tracker : 1;   // 重置识别器 0-不重置 1-重置
   uint8_t reserved : 6;     // 保留位
   float roll;
   float pitch;
