@@ -3,45 +3,47 @@
 */
 
 #pragma once
-#include <cstdint>
 #include <stdint.h>
+
+#include <cstdint>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define FRAME_SOF 0xF6 // 帧头
-#define MAX_SIZE 64  //不建议一包大于64字节
+#define FRAME_SOF 0xF6         // 帧头
+#define MAX_SIZE_SERIAL_CV 64  //不建议一包大于64字节
 
 typedef struct Frame {
   uint8_t sof;
   uint8_t data_len;
-  uint8_t data[MAX_SIZE];
+  uint8_t data[MAX_SIZE_SERIAL_CV];
 } Frame_t;
 
-#define AUTOAIM_MCU2AI 0x5A // 电控 -> 视觉 (自瞄用)数据包头
+#define AUTOAIM_MCU2AI 0x5A  // 电控 -> 视觉 (自瞄用)数据包头
 /* 电控 -> 视觉 (自瞄用)MCU数据结构体*/
 struct Protocol_MCUPacket_t {
   uint8_t header = AUTOAIM_MCU2AI;
-  uint8_t detect_color : 1; // 0-red 1-blue
-  bool reset_tracker : 1;   // 重置识别器 0-不重置 1-重置
-  uint8_t reserved : 6;     // 保留位
+  uint8_t detect_color : 1;  // 0-red 1-blue
+  bool reset_tracker : 1;    // 重置识别器 0-不重置 1-重置
+  uint8_t reserved : 6;      // 保留位
   float roll;
   float pitch;
   float yaw;
-  float aim_x; // 火控计算出的目标点
-  float aim_y; // 火控计算出的目标点
-  float aim_z; // 火控计算出的目标点
+  float aim_x;  // 火控计算出的目标点
+  float aim_y;  // 火控计算出的目标点
+  float aim_z;  // 火控计算出的目标点
   uint16_t checksum = 0;
 } __attribute__((packed));
 
-#define AUTOAIM_AI2MCU 0xA5 // 视觉 -> 电控 (自瞄用)数据包头
+#define AUTOAIM_AI2MCU 0xA5  // 视觉 -> 电控 (自瞄用)数据包头
 /* 视觉 -> 电控 (自瞄用)数据结构体*/
 struct Protocol_MasterPacket_t {
   uint8_t header = AUTOAIM_AI2MCU;
-  bool tracking : 1;      // 0-不追踪 1-追踪
-  uint8_t id : 3;         // 0-outpost 6-guard 7-base
-  uint8_t armors_num : 3; // 2-balance 3-outpost 4-normal
-  uint8_t reserved : 1;   // 保留位
+  bool tracking : 1;       // 0-不追踪 1-追踪
+  uint8_t id : 3;          // 0-outpost 6-guard 7-base
+  uint8_t armors_num : 3;  // 2-balance 3-outpost 4-normal
+  uint8_t reserved : 1;    // 保留位
   float x;
   float y;
   float z;
@@ -57,8 +59,7 @@ struct Protocol_MasterPacket_t {
   uint16_t checksum = 0;
 } __attribute__((packed));
 
-
-#define DECISION_MCU2AI 0x6A // 决策数据包头
+#define DECISION_MCU2AI 0x6A  // 决策数据包头
 /* 电控 -> 视觉 (决策用)裁判系统数据结构体*/
 struct Protocol_UpDataReferee_t {
   uint8_t header = DECISION_MCU2AI;
@@ -95,8 +96,7 @@ struct Protocol_UpDataReferee_t {
   uint16_t checksum = 0;
 } __attribute__((packed));
 
-
-#define NAVIGATION_AI2MCU 0x6A // 导航数据包头
+#define NAVIGATION_AI2MCU 0x6A  // 导航数据包头
 /* 视觉 -> 电控 (导航用)数据结构体*/
 struct Protocol_NavCommand_t {
   uint8_t header = NAVIGATION_AI2MCU;
