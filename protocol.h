@@ -14,12 +14,14 @@ extern "C" {
 
 typedef struct Frame {
   uint8_t sof;
+  uint8_t data_len;
   uint8_t data[MAX_SIZE];
 } Frame_t;
 
+#define AUTOAIM_MCU2AI 0x5A // 电控 -> 视觉 (自瞄用)数据包头
 /* 电控 -> 视觉 (自瞄用)MCU数据结构体*/
 struct Protocol_MCUPacket_t {
-  uint8_t header = 0x5A;
+  uint8_t header = AUTOAIM_MCU2AI;
   uint8_t detect_color : 1; // 0-red 1-blue
   bool reset_tracker : 1;   // 重置识别器 0-不重置 1-重置
   uint8_t reserved : 6;     // 保留位
@@ -32,9 +34,10 @@ struct Protocol_MCUPacket_t {
   uint16_t checksum = 0;
 } __attribute__((packed));
 
+#define AUTOAIM_AI2MCU 0xA5 // 视觉 -> 电控 (自瞄用)数据包头
 /* 视觉 -> 电控 (自瞄用)数据结构体*/
 struct Protocol_MasterPacket_t {
-  uint8_t header = 0xA5;
+  uint8_t header = AUTOAIM_AI2MCU;
   bool tracking : 1;      // 0-不追踪 1-追踪
   uint8_t id : 3;         // 0-outpost 6-guard 7-base
   uint8_t armors_num : 3; // 2-balance 3-outpost 4-normal
@@ -54,9 +57,11 @@ struct Protocol_MasterPacket_t {
   uint16_t checksum = 0;
 } __attribute__((packed));
 
-/* 电控 -> 视觉 (导航用)裁判系统数据结构体*/
+
+#define DECISION_MCU2AI 0x6A // 决策数据包头
+/* 电控 -> 视觉 (决策用)裁判系统数据结构体*/
 struct Protocol_UpDataReferee_t {
-  uint8_t header = 0x6A;
+  uint8_t header = DECISION_MCU2AI;
   uint8_t robot_id;      /*机器人ID （1~7->红，101~107->蓝*/
   uint16_t current_hp;   /*血量*/
   uint16_t shooter_heat; /*枪口热量*/
@@ -90,9 +95,11 @@ struct Protocol_UpDataReferee_t {
   uint16_t checksum = 0;
 } __attribute__((packed));
 
+
+#define NAVIGATION_AI2MCU 0x6A // 导航数据包头
 /* 视觉 -> 电控 (导航用)数据结构体*/
 struct Protocol_NavCommand_t {
-  uint8_t header = 0xA6;
+  uint8_t header = NAVIGATION_AI2MCU;
   struct __attribute__((packed)) {
     float q1; /* 四元数q1 */
     float q2; /* 四元数q2 */
