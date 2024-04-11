@@ -9,7 +9,13 @@
 extern "C" {
 #endif
 
-#define CV_COMM_SOF 0xF6 // start of frame
+#define FRAME_SOF 0xF6 // 帧头
+#define MAX_SIZE 64  //不建议一包大于64字节
+
+typedef struct Frame {
+  uint8_t sof;
+  uint8_t data[MAX_SIZE];
+} Frame_t;
 
 /* 电控 -> 视觉 (自瞄用)MCU数据结构体*/
 struct Protocol_MCUPacket_t {
