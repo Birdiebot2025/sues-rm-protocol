@@ -101,11 +101,10 @@ struct Protocol_UpDataReferee_t {
 struct Protocol_NavCommand_t {
   uint8_t header = NAVIGATION_AI2MCU;
   struct __attribute__((packed)) {
-    float q1; /* 四元数q1 */
-    float q2; /* 四元数q2 */
-    float q3; /* 四元数q3 */
-    float q4; /* 四元数q4 */
-  } gimbal;   /* 四元数 */
+    float yaw; /* 偏航角(Yaw angle) */
+    float pit; /* 俯仰角(Pitch angle) */
+    float rol; /* 翻滚角(Roll angle) */
+  } gimbal;    /* 欧拉角 */
 
   struct __attribute__((packed)) {
     float vx;         /* x轴移动速度 */
