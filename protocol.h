@@ -96,7 +96,7 @@ struct Protocol_UpDataReferee_t {
   uint16_t checksum = 0;
 } __attribute__((packed));
 
-#define NAVIGATION_AI2MCU 0x6A  // 导航数据包头
+#define NAVIGATION_AI2MCU 0xA6  // 导航数据包头
 /* 视觉 -> 电控 (导航用)数据结构体*/
 struct Protocol_NavCommand_t {
   uint8_t header = NAVIGATION_AI2MCU;
