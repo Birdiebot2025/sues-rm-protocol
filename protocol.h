@@ -70,6 +70,7 @@ struct Protocol_UpDataReferee_t {
   bool is_attacked; /*是否受到攻击 0->未受到攻击 1->受到攻击*/
   uint8_t game_progress;      /*当前比赛阶段*/
   uint16_t stage_remain_time; /*当前阶段剩余时间*/
+  uint16_t remaining_bullet;
 
   // 场地事件数据
   // bit 0-2：
@@ -91,6 +92,10 @@ struct Protocol_UpDataReferee_t {
   // • 0为前哨战被击毁；
   // bit 10-31: 保留
   uint32_t event_data;
+
+  uint16_t red_outpost_hp;
+  uint16_t blue_outpost_hp;
+  uint16_t red_3_robot_hp;
 
   uint8_t decision_num; /*决策切换 0-xxx 1-xxx 2-xxx ... */
   uint16_t checksum = 0;
