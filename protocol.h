@@ -63,41 +63,18 @@ struct Protocol_MasterPacket_t {
 /* 电控 -> 视觉 (决策用)裁判系统数据结构体*/
 struct Protocol_UpDataReferee_t {
   uint8_t header = DECISION_MCU2AI;
-  uint8_t robot_id;      /*机器人ID （1~7->红，101~107->蓝*/
-  uint16_t current_hp;   /*血量*/
-  uint16_t shooter_heat; /*枪口热量*/
-  bool team_color;       /*队伍颜色 0->红 1->蓝*/
-  bool is_attacked; /*是否受到攻击 0->未受到攻击 1->受到攻击*/
+  uint8_t robot_id;           /*机器人ID （1~7->红，101~107->蓝*/
+  uint16_t current_hp;        /*血量*/
+  uint16_t shooter_heat;      /*枪口热量*/
+  bool team_color;            /*队伍颜色 0->红 1->蓝*/
   uint8_t game_progress;      /*当前比赛阶段*/
   uint16_t stage_remain_time; /*当前阶段剩余时间*/
-  uint16_t remaining_bullet;
-
-  // 场地事件数据
-  // bit 0-2：
-  // bit 0：己方补给站 1号补血点占领状态 1为已占领；
-  // bit 1：己方补给站 2号补血点占领状态 1为已占领；
-  // bit 2：己方补给站 3号补血点占领状态 1为已占领；
-  // bit 3-5：己方能量机关状态：
-  // • bit 3为打击点占领状态，1为占领；
-  // • bit 4为小能量机关激活状态，1为已激活；
-  // • bit 5为大能量机关激活状态，1为已激活；
-  // bit 6：己方侧R2/B2环形高地占领状态1为已占领；
-  // bit 7：己方侧R3/B3梯形高地占领状态 1为已占领；
-  // bit 8：己方侧R4/B4梯形高地占领状态 1为已占领；
-  // bit 9：己方基地护盾状态：
-  // • 1为基地有虚拟护盾血量；
-  // • 0为基地无虚拟护盾血量；
-  // bit 10：己方前哨战状态：
-  // • 1为前哨战存活；
-  // • 0为前哨战被击毁；
-  // bit 10-31: 保留
-  uint32_t event_data;
-
+  uint16_t remaining_bullet;  // Sentry's remaining bullet
   uint16_t red_outpost_hp;
   uint16_t blue_outpost_hp;
-  uint16_t red_3_robot_hp;
-
-  uint8_t decision_num; /*决策切换 0-xxx 1-xxx 2-xxx ... */
+  uint8_t decision_num;     /*决策切换 0-xxx 1-xxx 2-xxx ... */
+  float target_position_x;  // Aerial operator's sentry target position x
+  float target_position_y;  // Aerial operator's sentry target position y
   uint16_t checksum = 0;
 } __attribute__((packed));
 
