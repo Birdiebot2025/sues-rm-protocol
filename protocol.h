@@ -63,18 +63,32 @@ struct Protocol_MasterPacket_t {
 /* 电控 -> 视觉 (决策用)裁判系统数据结构体*/
 struct Protocol_UpDataReferee_t {
   uint8_t header = DECISION_MCU2AI;
-  uint8_t robot_id;           /*机器人ID （1~7->红，101~107->蓝*/
-  uint16_t current_hp;        /*血量*/
-  uint16_t shooter_heat;      /*枪口热量*/
-  bool team_color;            /*队伍颜色 0->红 1->蓝*/
-  uint8_t game_progress;      /*当前比赛阶段*/
-  uint16_t stage_remain_time; /*当前阶段剩余时间*/
-  uint16_t remaining_bullet;  // Sentry's remaining bullet
-  uint16_t red_outpost_hp;
-  uint16_t blue_outpost_hp;
-  uint8_t decision_num;     /*决策切换 0-xxx 1-xxx 2-xxx ... */
-  float target_position_x;  // Aerial operator's sentry target position x
-  float target_position_y;  // Aerial operator's sentry target position y
+  uint8_t game_progress;                  /* 当前比赛阶段 */
+  uint16_t stage_remain_time;             /* 当前阶段剩余时间 */
+  uint16_t red_1_robot_hp;                /* 红1英雄机器人血量 */
+  uint16_t red_2_robot_hp;                /* 红2工程机器人血量 */
+  uint16_t red_3_robot_hp;                /* 红3步兵机器人血量 */
+  uint16_t red_4_robot_hp;                /* 红4步兵机器人血量 */
+  uint16_t red_7_robot_hp;                /* 红7哨兵机器人血量 */
+  uint16_t red_outpost_hp;                /* 红方前哨站血量 */
+  uint16_t red_base_hp;                   /* 红方基地血量 */
+  uint16_t blue_1_robot_hp;               /* 蓝1英雄机器人血量 */
+  uint16_t blue_2_robot_hp;               /* 蓝2工程机器人血量 */
+  uint16_t blue_3_robot_hp;               /* 蓝3步兵机器人血量 */
+  uint16_t blue_4_robot_hp;               /* 蓝4步兵机器人血量 */
+  uint16_t blue_7_robot_hp;               /* 蓝7哨兵机器人血量 */
+  uint16_t blue_outpost_hp;               /* 蓝方前哨站血量 */
+  uint16_t blue_base_hp;                  /* 蓝方基地血量 */
+  uint8_t robot_id;                       /* 本机器人ID（1~7->红，101~107->蓝）*/  
+  uint16_t current_hp;                    /* 机器人当前血量 */
+  uint16_t maximum_hp;                    /* 机器人血量上限 */
+  uint16_t shooter_17_mm_1_barrel_heat;   /* 第一个17mm发射机构的射击热量 */
+  uint16_t shooter_17_mm_2_barrel_heat;   /* 第二个17mm发射机构的射击热量 */
+  uint16_t projectile_allowance_17mm;     /* 17mm弹丸允许发弹量 */
+  uint16_t remaining_gold_coin;           /* 剩余金币数量 */
+  uint32_t center_gain_point;             /* 中心增益点的占领状态(仅RMUL适用) */
+  bool team_color;                        /* 队伍颜色 0->红 1->蓝 */
+  uint8_t decision_num;                   /* 选择决策模式 */
   uint16_t checksum = 0;
 } __attribute__((packed));
 
