@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
 #define FRAME_SOF 0xF6         // 帧头
-#define MAX_SIZE_SERIAL_CV 64  //不建议一包大于64字节
+#define MAX_SIZE_SERIAL_CV 64  // 不建议一包大于64字节
 
 typedef struct Frame {
   uint8_t sof;
@@ -25,14 +25,17 @@ typedef struct Frame {
 struct Protocol_MCUPacket_t {
   uint8_t header = AUTOAIM_MCU2AI;
   uint8_t detect_color : 1;  // 0-red 1-blue
-  bool reset_tracker : 1;    // 重置识别器 0-不重置 1-重置
-  uint8_t reserved : 6;      // 保留位
+  uint8_t task_mode : 2;     // 0-aim 1-buff+aim
+  bool reset_tracker : 1;
+  uint8_t reserved : 2;
   float roll;
   float pitch;
   float yaw;
-  float aim_x;  // 火控计算出的目标点
-  float aim_y;  // 火控计算出的目标点
-  float aim_z;  // 火控计算出的目标点
+  float aim_x;
+  float aim_y;
+  float aim_z;
+  uint16_t game_time;  // (s) game time [0, 450]
+  uint32_t timestamp;  // (ms) board time
   uint16_t checksum = 0;
 } __attribute__((packed));
 
@@ -40,22 +43,24 @@ struct Protocol_MCUPacket_t {
 /* 视觉 -> 电控 (自瞄用)数据结构体*/
 struct Protocol_MasterPacket_t {
   uint8_t header = AUTOAIM_AI2MCU;
-  bool tracking : 1;       // 0-不追踪 1-追踪
-  uint8_t id : 3;          // 0-outpost 6-guard 7-base
+  uint8_t state : 2;       // 0-untracking 1-tracking-aim 2-tracking-buff
+  uint8_t id : 3;          // aim: 0-outpost 6-guard 7-base
   uint8_t armors_num : 3;  // 2-balance 3-outpost 4-normal
-  uint8_t reserved : 1;    // 保留位
-  float x;
-  float y;
-  float z;
-  float yaw;
-  float vx;
-  float vy;
-  float vz;
+  float x;                 // aim: robot-center || buff: rune-center
+  float y;                 // aim: robot-center || buff: rune-center
+  float z;                 // aim: robot-center || buff: rune-center
+  float yaw;  // aim: robot-yaw || buff: rune-theta  // spd = a*sin(w*t)+b ||
+              // spd > 0 ==> clockwise
+  float vx;   // aim: robot-vx || buff: rune spin speed param - a
+  float vy;   // aim: robot-vy || buff: rune spin speed param - b
+  float vz;   // aim: robot-vz || buff: rune spin speed param - w
   float v_yaw;
   float r1;
   float r2;
   float dz;
   float letency_time;
+  uint32_t cap_timestamp;  // (ms) frame capture time
+  uint16_t t_offset;       // (ms) speed t offset
   uint16_t checksum = 0;
 } __attribute__((packed));
 
@@ -63,32 +68,41 @@ struct Protocol_MasterPacket_t {
 /* 电控 -> 视觉 (决策用)裁判系统数据结构体*/
 struct Protocol_UpDataReferee_t {
   uint8_t header = DECISION_MCU2AI;
-  uint8_t game_progress;                  /* 当前比赛阶段 */
-  uint16_t stage_remain_time;             /* 当前阶段剩余时间 */
-  uint16_t red_1_robot_hp;                /* 红1英雄机器人血量 */
-  uint16_t red_2_robot_hp;                /* 红2工程机器人血量 */
-  uint16_t red_3_robot_hp;                /* 红3步兵机器人血量 */
-  uint16_t red_4_robot_hp;                /* 红4步兵机器人血量 */
-  uint16_t red_7_robot_hp;                /* 红7哨兵机器人血量 */
-  uint16_t red_outpost_hp;                /* 红方前哨站血量 */
-  uint16_t red_base_hp;                   /* 红方基地血量 */
-  uint16_t blue_1_robot_hp;               /* 蓝1英雄机器人血量 */
-  uint16_t blue_2_robot_hp;               /* 蓝2工程机器人血量 */
-  uint16_t blue_3_robot_hp;               /* 蓝3步兵机器人血量 */
-  uint16_t blue_4_robot_hp;               /* 蓝4步兵机器人血量 */
-  uint16_t blue_7_robot_hp;               /* 蓝7哨兵机器人血量 */
-  uint16_t blue_outpost_hp;               /* 蓝方前哨站血量 */
-  uint16_t blue_base_hp;                  /* 蓝方基地血量 */
-  uint8_t robot_id;                       /* 本机器人ID（1~7->红，101~107->蓝）*/  
-  uint16_t current_hp;                    /* 机器人当前血量 */
-  uint16_t maximum_hp;                    /* 机器人血量上限 */
-  uint16_t shooter_17_mm_1_barrel_heat;   /* 第一个17mm发射机构的射击热量 */
-  uint16_t shooter_17_mm_2_barrel_heat;   /* 第二个17mm发射机构的射击热量 */
-  uint16_t projectile_allowance_17mm;     /* 17mm弹丸允许发弹量 */
-  uint16_t remaining_gold_coin;           /* 剩余金币数量 */
-  uint32_t center_gain_point;             /* 中心增益点的占领状态(仅RMUL适用) */
-  bool team_color;                        /* 队伍颜色 0->红 1->蓝 */
-  uint8_t decision_num;                   /* 选择决策模式 */
+  uint8_t robot_id;      /*机器人ID （1~7->红，101~107->蓝*/
+  uint16_t current_hp;   /*血量*/
+  uint16_t shooter_heat; /*枪口热量*/
+  bool team_color;       /*队伍颜色 0->红 1->蓝*/
+  bool is_attacked; /*是否受到攻击 0->未受到攻击 1->受到攻击*/
+  uint8_t game_progress;      /*当前比赛阶段*/
+  uint16_t stage_remain_time; /*当前阶段剩余时间*/
+  uint16_t remaining_bullet;
+
+  // 场地事件数据
+  // bit 0-2：
+  // bit 0：己方补给站 1号补血点占领状态 1为已占领；
+  // bit 1：己方补给站 2号补血点占领状态 1为已占领；
+  // bit 2：己方补给站 3号补血点占领状态 1为已占领；
+  // bit 3-5：己方能量机关状态：
+  // • bit 3为打击点占领状态，1为占领；
+  // • bit 4为小能量机关激活状态，1为已激活；
+  // • bit 5为大能量机关激活状态，1为已激活；
+  // bit 6：己方侧R2/B2环形高地占领状态1为已占领；
+  // bit 7：己方侧R3/B3梯形高地占领状态 1为已占领；
+  // bit 8：己方侧R4/B4梯形高地占领状态 1为已占领；
+  // bit 9：己方基地护盾状态：
+  // • 1为基地有虚拟护盾血量；
+  // • 0为基地无虚拟护盾血量；
+  // bit 10：己方前哨战状态：
+  // • 1为前哨战存活；
+  // • 0为前哨战被击毁；
+  // bit 10-31: 保留
+  uint32_t event_data;
+
+  uint16_t red_outpost_hp;
+  uint16_t blue_outpost_hp;
+  uint16_t red_3_robot_hp;
+
+  uint8_t decision_num; /*决策切换 0-xxx 1-xxx 2-xxx ... */
   uint16_t checksum = 0;
 } __attribute__((packed));
 
@@ -107,6 +121,19 @@ struct Protocol_NavCommand_t {
     float vy;         /* y轴移动速度*/
     float wz;         /* z轴转动速度 */
   } chassis_move_vec; /* 底盘移动向量 */
+  uint16_t checksum = 0;
+} __attribute__((packed));
+
+// sakuya
+
+#define DARTAIM_AI2MCU 0xA7  // 视觉 -> 电控 (自瞄用)数据包头
+/* 视觉 -> 电控 (自瞄用)数据结构体*/
+struct Protocol_DartMasterPacket_t {
+  uint8_t header = DARTAIM_AI2MCU;
+  float x;  // coordinates from Guidelight
+  float y;
+  float z;
+  float yaw;  // yaw from camera
   uint16_t checksum = 0;
 } __attribute__((packed));
 
