@@ -128,7 +128,7 @@ struct Protocol_NavCommand_t {
 
 #define DARTAIM_AI2MCU 0xA7  // 视觉 -> 电控 (自瞄用)数据包头
 /* 视觉 -> 电控 (自瞄用)数据结构体*/
-struct Protocol_DartMasterPacket_t {
+struct Protocol_DartPacket_t {
   uint8_t header = DARTAIM_AI2MCU;
   float x;  // coordinates from Guidelight
   float y;
