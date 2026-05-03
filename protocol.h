@@ -99,7 +99,10 @@ struct Protocol_UpDataReferee_t {
   uint8_t current_stance;                 /* 哨兵当前姿态，1为进攻姿态，2为防御姿态，3为移动姿态 */
   bool can_activate_mechanism;           /* 己方能量机关是否能够进入正在激活状态，1 为当前可激活 */
   uint16_t damage_type;                   /* 扣血类型，0-受到弹丸伤害 */
+  uint8_t be_attacked;                 /* 是否被攻击 1-被攻击 0-未被攻击 */
+  bool road_attention;                 /* 对方起伏路段是否有关键单位，有为1,无为0 */
   uint16_t checksum = 0;
+  
 } __attribute__((packed));
 
 
